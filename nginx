@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+
+    location /api {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:5000/;
+    }
+
+    location / {
+        autoindex on;
+        root  /opt/kitsu/dist;
+    }
+}
