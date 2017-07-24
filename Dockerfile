@@ -46,6 +46,8 @@ WORKDIR /opt/zou
 ENTRYPOINT \
     service nginx start && \
     service postgresql start && \
+    echo Initialising Zou.. && \
+    sleep 5 && \
     zou init_db && \
     zou init_data && \
     zou create_admin && \
