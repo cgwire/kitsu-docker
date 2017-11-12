@@ -10,49 +10,49 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libjpeg-dev \
     git \
-    nginx
+    nginx \
+    redis-server \
+    ffmpeg && \
+    echo "vm.overcommit_memory = 1" >> /etc/systcl.conf
 
 RUN git clone https://github.com/cgwire/zou.git /opt/zou && \
     git clone -b build https://github.com/cgwire/kitsu.git /opt/kitsu && \
     cd /opt/zou && \
     python3 setup.py install && \
-    pip3 install \
-        gunicorn \
-        gevent
-
-COPY gunicorn /etc/zou/gunicorn.conf
-COPY nginx /etc/nginx/sites-available/zou
-
-RUN useradd --home /opt/zou zou && \
-    mkdir /opt/zou/logs && \
-    chown zou: /opt/zou/logs && \
-    chown -R zou:www-data /opt/kitsu && \
-    chown -R zou:www-data /opt/zou && \
-    rm /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled
+    pip3 install gunicorn && \
+    pip3 install gevent
 
 USER postgres
 
-RUN service postgresql start && \
-    psql --command "create database zoudb;" -U postgres && \
-    psql --command "ALTER USER postgres WITH PASSWORD 'mysecretpassword';"
+RUN \
+    service postgresql start && \
+    psql -c 'create database zoudb;' -U postgres && \
+    psql --command "ALTER USER postgres WITH PASSWORD 'mysecretpassword';" && \
+    service postgresql stop
 
 USER root
-WORKDIR /opt/zou
 
-# About Gunicorn and port 5000
-# Gunicorn is being reverse-proxied through Nginx,
-# which is ultimately the process serving port 80
+COPY ./gunicorn /etc/zou/gunicorn.conf
+COPY ./zou.service /etc/systemd/
+RUN mkdir /opt/zou/logs
+
+WORKDIR /opt/zou
+COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
+COPY ./zou-events.service /etc/systemd/system/
+COPY ./init_zou.sh .
+COPY ./start_zou.sh .
+RUN chmod +x init_zou.sh start_zou.sh
+
+COPY ./nginx /etc/nginx/sites-available/zou
+RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
+
+RUN rm /etc/nginx/sites-enabled/default
+
+RUN \
+  echo Initialising Zou.. && \
+  ./init_zou.sh
+
+EXPOSE 80
+
 ENTRYPOINT \
-    service nginx start && \
-    service postgresql start && \
-    echo Initialising Zou.. && \
-    sleep 5 && \
-    zou init_db && \
-    zou init_data && \
-    zou create_admin && \
-    echo Running Zou.. && \
-    gunicorn \
-        -c /etc/zou/gunicorn.conf \
-        -b 0.0.0.0:5000 \
-        wsgi:application 
+  /opt/zou/start_zou.sh
