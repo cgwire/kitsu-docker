@@ -14,7 +14,12 @@ Docker container for Zou, https://cg-wire.com
 $ docker build -t cgwire https://github.com/mottosso/docker-cgwire.git
 $ docker run -ti --rm -p 80:80 cgwire
 ```
+If you want the postgresql folder persistent:
 
+```bash
+$ docker build -t cgwire https://github.com/mottosso/docker-cgwire.git
+$ docker run -ti --rm -p 80:80 -v /path/to/local/folder:/var/lib/postgresql cgwire
+```
 > No need to clone this project, the above commands will suffice.
 
 In your browser, visit `http://localhost` on Linux, or `http://<your-ip>` with the IP of your VirtualBox session on Docker Toolbox for Windows or MacOS. You'll be greeted by the welcome screen where you enter the email and password you supplied in the interactive session above.
