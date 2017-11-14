@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     nginx \
     redis-server \
     ffmpeg && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/cgwire/zou.git /opt/zou && \
     git clone -b build https://github.com/cgwire/kitsu.git /opt/kitsu && \
