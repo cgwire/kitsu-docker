@@ -56,7 +56,7 @@ COPY ./gunicorn /etc/zou/gunicorn.conf
 RUN mkdir /opt/zou/logs
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
 
-COPY ./nginx /etc/nginx/sites-available/zou
+COPY ./nginx.conf /etc/nginx/sites-available/zou
 RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
 RUN rm /etc/nginx/sites-enabled/default
 
