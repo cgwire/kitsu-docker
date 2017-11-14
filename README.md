@@ -7,15 +7,15 @@ See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towar
 ### Usage
 
 ```bash
-$ docker build -t zou .
-$ docker run -ti --rm -p 80:80 zou
+$ docker build -t cgwire .
+$ docker run -ti --rm -p 80:80 cgwire
 ```
 
 In order to enable data persistence, use these bind mounts for database and thumbnails:
 
 ```bash
-$ docker build -t zou .
-$ docker run -ti --rm -p 80:80 -v /path/to/local/db:/var/lib/postgresql -v /path/to/local/thumbnails:/opt/zou/zou/thumbnails zou
+$ docker build -t cgwire .
+$ docker run -ti --rm -p 80:80 -v /path/to/local/db:/var/lib/postgresql -v /path/to/local/thumbnails:/opt/zou/zou/thumbnails cgwire
 ```
 
 Credentials:
