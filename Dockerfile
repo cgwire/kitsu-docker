@@ -11,14 +11,18 @@ RUN gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 595E85A6B1B
 RUN chmod +x /tini
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    bzip2 \
+    ffmpeg \
+    git \
+    nginx \
     postgresql \
     postgresql-client \
     python3 \
     python3-pip \
-    git \
-    nginx \
-    redis-server \
-    ffmpeg && \
+    python3-setuptools \
+    python3-venv \
+    python3-wheel \
+    redis-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
