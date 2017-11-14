@@ -10,11 +10,12 @@ See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towar
 $ docker build -t zou .
 $ docker run -ti --rm -p 80:80 zou
 ```
-If you want the postgresql folder persistent:
+
+In order to enable data persistence, use these bind mounts for database and thumbnails:
 
 ```bash
 $ docker build -t zou .
-$ docker run -ti --rm -p 80:80 -v /path/to/local/folder:/var/lib/postgresql zou
+$ docker run -ti --rm -p 80:80 -v /path/to/local/db:/var/lib/postgresql -v /path/to/local/thumbnails:/opt/zou/zou/thumbnails zou
 ```
 
 Credentials:
