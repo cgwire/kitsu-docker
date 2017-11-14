@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     nginx \
     redis-server \
     ffmpeg && \
-    echo "vm.overcommit_memory = 1" >> /etc/systcl.conf
 
 RUN git clone https://github.com/cgwire/zou.git /opt/zou && \
     git clone -b build https://github.com/cgwire/kitsu.git /opt/kitsu && \
