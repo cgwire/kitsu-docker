@@ -22,8 +22,7 @@ server {
 
     location / {
         autoindex on;
-        root  /opt/kitsu/dist;
+        root /opt/zou/kitsu/dist;
         try_files $uri $uri/ /index.html;
-
     }
 }
