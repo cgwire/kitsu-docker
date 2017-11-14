@@ -1,5 +1,7 @@
 FROM ubuntu:16.04
 
+USER root
+
 # Add Tini
 ENV TINI_VERSION v0.16.1
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
@@ -27,33 +29,32 @@ RUN git clone https://github.com/cgwire/zou.git /opt/zou && \
     cd /opt/zou && \
     python3 setup.py install
 
-USER postgres
 
-RUN \
-    service postgresql start && \
-    psql -c 'create database zoudb;' -U postgres && \
-    psql --command "ALTER USER postgres WITH PASSWORD 'mysecretpassword';" && \
+WORKDIR /opt/zou
+
+# Create database
+RUN service postgresql start && \
+    su - postgres -c 'createuser root && createdb -T template0 -E UTF8 --owner root zoudb' && \
     service postgresql stop
 
-USER root
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
 RUN mkdir /opt/zou/logs
 
 WORKDIR /opt/zou
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
-COPY ./init_zou.sh .
-COPY ./start_zou.sh .
-RUN chmod +x init_zou.sh start_zou.sh
 
 COPY ./nginx /etc/nginx/sites-available/zou
 RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
-
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN \
-  echo Initialising Zou.. && \
-  ./init_zou.sh
+ENV DB_USERNAME=root DB_HOST=
+COPY ./init_zou.sh /opt/zou/
+COPY ./start_zou.sh /opt/zou/
+RUN chmod +x /opt/zou/init_zou.sh /opt/zou/start_zou.sh
+
+RUN echo Initialising Zou... && \
+    /opt/zou/init_zou.sh
 
 EXPOSE 80
 
