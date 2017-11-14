@@ -20,4 +20,4 @@ $ docker run -ti --rm -p 80:80 -v /path/to/local/folder:/var/lib/postgresql zou
 Credentials:
 
 * login: admin@example.com
-* password: default
+* password: default
