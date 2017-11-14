@@ -33,12 +33,10 @@ RUN \
 USER root
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
-COPY ./zou.service /etc/systemd/
 RUN mkdir /opt/zou/logs
 
 WORKDIR /opt/zou
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
-COPY ./zou-events.service /etc/systemd/system/
 COPY ./init_zou.sh .
 COPY ./start_zou.sh .
 RUN chmod +x init_zou.sh start_zou.sh
