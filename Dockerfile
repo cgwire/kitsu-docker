@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     nginx \
     postgresql \
     postgresql-client \
+    python-pip \
+    python-setuptools \
     python3 \
     python3-pip \
     python3-setuptools \
@@ -58,6 +60,10 @@ COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
 COPY ./nginx.conf /etc/nginx/sites-available/zou
 RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
 RUN rm /etc/nginx/sites-enabled/default
+
+# supervisor will manage services
+RUN pip install supervisor
+ADD supervisord.conf /etc/supervisord.conf
 
 ENV DB_USERNAME=root DB_HOST=
 COPY ./init_zou.sh /opt/zou/
