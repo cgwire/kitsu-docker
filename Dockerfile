@@ -25,9 +25,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN git clone https://github.com/cgwire/zou.git /opt/zou && \
     git clone -b build https://github.com/cgwire/kitsu.git /opt/kitsu && \
     cd /opt/zou && \
-    python3 setup.py install && \
-    pip3 install gunicorn && \
-    pip3 install gevent
+    python3 setup.py install
 
 USER postgres
 
