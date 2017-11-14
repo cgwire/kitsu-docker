@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /opt/zou
+RUN mkdir -p /opt/zou /var/log/zou
 
 RUN git clone --depth 1 https://github.com/cgwire/zou.git /opt/zou/zou && \
     git clone -b build --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
@@ -53,7 +53,6 @@ COPY pg_ctl.conf /etc/postgresql/9.5/main/pg_ctl.conf
 RUN chmod 0644 /etc/postgresql/9.5/main/pg_ctl.conf && chown postgres:postgres /etc/postgresql/9.5/main/pg_ctl.conf
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
-RUN mkdir /opt/zou/logs
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
 
 COPY ./nginx.conf /etc/nginx/sites-available/zou
