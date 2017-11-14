@@ -13,12 +13,8 @@ RUN chmod +x /tini
 RUN apt-get update && apt-get install --no-install-recommends -y \
     postgresql \
     postgresql-client \
-    libpq-dev \
     python3 \
     python3-pip \
-    python3-dev \
-    libffi-dev \
-    libjpeg-dev \
     git \
     nginx \
     redis-server \
@@ -28,10 +24,17 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 RUN mkdir -p /opt/zou
 RUN git clone https://github.com/cgwire/zou.git /opt/zou/zou && \
-    git clone -b build https://github.com/cgwire/kitsu.git /opt/zou/kitsu && \
-    cd /opt/zou/zou && \
-    python3 setup.py install
+    git clone -b build https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
+# setup.py will read requirements.txt in the current directory
+WORKDIR /opt/zou/zou
+RUN python3 -m venv /opt/zou/env && \
+    # Python 2 needed for supervisord
+    /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
+    # Install dependencies using pip in order to use wheel
+    /opt/zou/env/bin/pip install -r /opt/zou/zou/requirements.txt && \
+    /opt/zou/env/bin/python /opt/zou/zou/setup.py install && \
+    rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
 
@@ -43,8 +46,6 @@ RUN service postgresql start && \
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
 RUN mkdir /opt/zou/logs
-
-WORKDIR /opt/zou
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
 
 COPY ./nginx /etc/nginx/sites-available/zou
