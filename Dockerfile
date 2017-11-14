@@ -48,6 +48,9 @@ RUN service postgresql start && \
     su - postgres -c 'createuser root && createdb -T template0 -E UTF8 --owner root zoudb' && \
     service postgresql stop
 
+# Wait for the startup or shutdown to complete
+COPY pg_ctl.conf /etc/postgresql/9.5/main/pg_ctl.conf
+RUN chmod 0644 /etc/postgresql/9.5/main/pg_ctl.conf && chown postgres:postgres /etc/postgresql/9.5/main/pg_ctl.conf
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
 RUN mkdir /opt/zou/logs
