@@ -8,14 +8,14 @@ See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towar
 
 ```bash
 $ docker build -t cgwire .
-$ docker run -ti --rm -p 80:80 cgwire
+$ docker run -ti --rm -p 80:80 --name cgwire cgwire
 ```
 
-In order to enable data persistence, use these bind mounts for database and thumbnails:
+In order to enable data persistence, use a named volume for database and thumbnails:
 
 ```bash
 $ docker build -t cgwire .
-$ docker run -ti --rm -p 80:80 -v /path/to/local/db:/var/lib/postgresql -v /path/to/local/thumbnails:/opt/zou/zou/thumbnails cgwire
+$ docker run -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/zou/thumbnails cgwire
 ```
 
 Credentials:

@@ -11,5 +11,3 @@ zou create_admin admin@example.com
 
 service postgresql stop
 service redis-server stop
-
-tar cvjf postgresql.tar.bz2 /var/lib/postgresql
