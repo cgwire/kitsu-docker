@@ -74,6 +74,6 @@ RUN echo Initialising Zou... && \
     /opt/zou/init_zou.sh
 
 EXPOSE 80
-
+VOLUME ["/var/lib/postgresql", "/opt/zou/zou/thumbnails"]
 ENTRYPOINT ["/tini", "--"]
 CMD ["/opt/zou/start_zou.sh"]
