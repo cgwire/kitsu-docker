@@ -28,19 +28,16 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /opt/zou /var/log/zou
+RUN mkdir -p /opt/zou /var/log/zou /opt/zou/thumbnails
 
-RUN git clone --depth 1 https://github.com/cgwire/zou.git /opt/zou/zou && \
-    git clone -b build --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN git clone -b build --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     # Python 2 needed for supervisord
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    # Install dependencies using pip in order to use wheel
-    /opt/zou/env/bin/pip install -r /opt/zou/zou/requirements.txt && \
-    /opt/zou/env/bin/python /opt/zou/zou/setup.py install && \
+    /opt/zou/env/bin/pip install zou && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
