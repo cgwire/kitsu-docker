@@ -1,0 +1,19 @@
+language: python
+python:
+    - 2.7
+    - 3.5
+
+services:
+  - docker
+
+install:
+  - docker build -t cgwire .
+  - docker run -d -p 80:80 --name cgwire cgwire/cgwire
+
+script:
+  - docker ps | grep -q cgwire
+  - pip install httpie
+  - http localhost:80/api | grep Zou
+  - http localhost:80 | grep CGWire
+  - http localhost:80 | grep Zou
+  - http POST localhost:80/api/auth/login email=admin@example.com password=default | grep true
