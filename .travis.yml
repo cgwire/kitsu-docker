@@ -8,7 +8,7 @@ services:
 
 install:
   - docker build -t cgwire .
-  - docker run -d -p 80:80 --name cgwire cgwire/cgwire
+  - docker run -d -p 80:80 --name cgwire cgwire
 
 script:
   - docker ps | grep -q cgwire
