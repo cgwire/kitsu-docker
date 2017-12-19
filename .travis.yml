@@ -15,5 +15,4 @@ script:
   - pip install httpie
   - http localhost:80/api | grep Zou
   - http localhost:80 | grep CGWire
-  - http localhost:80 | grep Zou
   - http POST localhost:80/api/auth/login email=admin@example.com password=default | grep true

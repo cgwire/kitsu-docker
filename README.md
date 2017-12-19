@@ -4,6 +4,8 @@ Docker container for [Zou](https://zou.cg-wire.com) and [Kitsu](https://kitsu.cg
 
 See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towards this interface.
 
+[![Build badge](https://travis-ci.org/cgwire/cgwire.svg?branch=master)](https://travis-ci.org/cgwire/cgwire)
+
 ### Usage
 
 ```bash
