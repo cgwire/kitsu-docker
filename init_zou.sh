@@ -7,7 +7,7 @@ service redis-server start
 
 . /opt/zou/env/bin/activate
 
-zou init_db
+zou upgrade_db
 zou init_data
 zou create_admin admin@example.com
 
