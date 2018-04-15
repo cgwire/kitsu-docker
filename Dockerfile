@@ -37,7 +37,7 @@ WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     # Python 2 needed for supervisord
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==0.5.5 && \
+    /opt/zou/env/bin/pip install zou==0.5.6 && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
