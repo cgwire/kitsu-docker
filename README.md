@@ -9,16 +9,13 @@ See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towar
 ### Usage
 
 ```bash
-$ docker build -t cgwire .
-$ docker run -ti --rm -p 80:80 --name cgwire cgwire/cgwire
+$ docker-compose up -d
+$ docker-compose exec docker-compose exec postgres su - postgres -c "createuser root"
+$ docker-compose exec postgres su - postgres -c "createdb -T template0 -E UTF8 --owner root root"
+$ docker-compose exec postgres su - postgres -c "createdb -T template0 -E UTF8 --owner root zoudb"
+$ docker-compose exec cgwire /opt/zou/init_zou.sh
 ```
 
-In order to enable data persistence, use a named volume for database and thumbnails:
-
-```bash
-$ docker build -t cgwire .
-$ docker run -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/zou/thumbnails cgwire/cgwire
-```
 
 Credentials:
 
