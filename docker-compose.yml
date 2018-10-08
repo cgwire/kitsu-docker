@@ -9,6 +9,7 @@ services:
   cgwire:
     env_file:
       - .env
+    image: cgwire:$ZOU_VERSION
     build:
       context: .
       # dockerfile: Dockerfile_test
