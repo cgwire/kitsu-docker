@@ -8,6 +8,7 @@ See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towar
 
 ### Usage
 
+#### Initialization
 ```bash
 $ docker-compose up -d
 $ docker-compose exec postgres su - postgres -c "createuser root"
@@ -16,11 +17,17 @@ $ docker-compose exec postgres su - postgres -c "createdb -T template0 -E UTF8 -
 $ docker-compose exec cgwire /opt/zou/init_zou.sh
 ```
 
-
 Credentials:
 
 * login: admin@example.com
 * password: default
+
+
+#### Update
+```bash
+#$ docker-compose exec cgwire /opt/zou/bin/pip3 install --upgrade zou
+$ docker-compose exec cgwire bash -c "LC_ALL=C.UTF-8 LANG=C.UTF-8 /opt/zou/env/bin/zou upgrade_db"
+```
 
 
 ### About authors
