@@ -2,12 +2,13 @@ FROM ubuntu:16.04
 
 USER root
 
-ENV TINI_VERSION=v0.18.0
-ENV KITSU_BRANCH=0.8.18-build
-ENV ZOU_VERSION=0.8.10
 ENV KV_HOST=redis
 ENV DB_HOST=postgres
 ENV DEBUG=1
+
+ARG TINI_VERSION
+ARG KITSU_BRANCH
+ARG ZOU_VERSION
 
 # Add Tini
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini

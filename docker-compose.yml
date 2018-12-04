@@ -4,14 +4,21 @@ services:
     image: postgres:10.5
     volumes:
       - postgres:/var/lib/postgresql/data
+    restart: always
   redis:
     image: redis:latest
+    restart: always
   cgwire:
+    restart: always
     env_file:
       - .env
-    image: cgwire:$ZOU_VERSION
+    image: cgwire:z$ZOU_TAG-k$KITSU_TAG
     build:
       context: .
+      args:
+        KITSU_BRANCH: ${KITSU_VERSION}
+        ZOU_VERSION: ${ZOU_VERSION}
+        TINI_VERSION: ${TINI_VERSION}
       # dockerfile: Dockerfile_test
     volumes:
       - thumbnails:/opt/zou/thumbnails
