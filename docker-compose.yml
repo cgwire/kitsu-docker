@@ -12,7 +12,7 @@ services:
     restart: always
     env_file:
       - .env
-    image: cgwire:z$ZOU_TAG-k$KITSU_TAG
+    image: cgwire:z$ZOU_VERSION-k$KITSU_VERSION
     build:
       context: .
       args:
