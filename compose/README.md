@@ -25,7 +25,6 @@ Credentials:
 
 #### Update
 ```bash
-#$ docker-compose exec cgwire /opt/zou/bin/pip3 install --upgrade zou
 $ docker-compose exec cgwire bash -c "LC_ALL=C.UTF-8 LANG=C.UTF-8 /opt/zou/env/bin/zou upgrade_db"
 ```
 
