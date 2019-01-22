@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 RUN mkdir -p /opt/zou /var/log/zou /opt/zou/thumbnails
 
-RUN git clone -b 0.9.9-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN git clone -b 0.9.10-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
