@@ -14,7 +14,7 @@ $ docker build -t cgwire .
 $ docker run -ti --rm -p 80:80 --name cgwire cgwire/cgwire
 ```
 
-In order to enable data persistence, use a named volume for database and thumbnails:
+In order to enable data persistence, use a named volume for the database and thumbnails:
 
 ```bash
 $ docker build -t cgwire .
@@ -36,14 +36,14 @@ $ docker exec -ti cgwire sh -c "zou upgrade_db"
 ### About authors
 
 This Dockerfile is written by CG Wire, a company based in France. We help small
-to midsize CG studios to manage their production and build pipeline
+to midsize CG studios to manage their production and build a pipeline
 efficiently.
 
-We apply software craftmanship principles as much as possible. We love
+We apply software craftsmanship principles as much as possible. We love
 coding and consider that strong quality and good developer experience matter a
  lot.
 Through our diverse experiences, we allow studios to get better at doing
-software and focus more on the artistic work.
+software and focus more on  artistic work.
 
 Visit [cg-wire.com](https://cg-wire.com) for more information.
 
