@@ -1,8 +1,9 @@
-# Docker Zou
+# Kitsu Docker
 
-Docker container for [Zou](https://zou.cg-wire.com) and [Kitsu](https://kitsu.cg-wire.com/).
+Docker container for [Kitsu](https://kitsu.cg-wire.com/).
 
-See [Gazu](https://gazu.cg-wire.com/) for details regarding the Python API towards this interface.
+It is not recommended to use this image in production. It is aimed at testing
+purposes.
 
 [![Build badge](https://travis-ci.org/cgwire/cgwire.svg?branch=master)](https://travis-ci.org/cgwire/cgwire)
 
@@ -24,6 +25,12 @@ Credentials:
 
 * login: admin@example.com
 * password: default
+
+To update the database:
+
+```bash
+$ docker exec -ti cgwire sh -c "zou upgrade_db"
+```
 
 
 ### About authors
