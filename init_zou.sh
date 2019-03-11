@@ -9,7 +9,7 @@ service redis-server start
 
 zou upgrade_db
 zou init_data
-zou create_admin admin@example.com
+zou create_admin admin@example.com --p mysecretpassword
 
 service postgresql stop
 service redis-server stop

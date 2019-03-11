@@ -24,7 +24,7 @@ $ docker run -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql 
 Credentials:
 
 * login: admin@example.com
-* password: default
+* password: mysecretpassword
 
 To update the database:
 
