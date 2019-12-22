@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 USER root
 
@@ -11,7 +11,6 @@ RUN gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 595E85A6B1B
 RUN chmod +x /tini
 
 RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common
-RUN add-apt-repository ppa:jonathonf/ffmpeg-4
 RUN apt-get update && apt-get install --no-install-recommends -y \
     bzip2 \
     ffmpeg \
