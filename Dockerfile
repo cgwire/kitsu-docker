@@ -1,17 +1,11 @@
-FROM ubuntu:18.04
+FROM krallin/ubuntu-tini:bionic
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 
-# Add Tini
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc /tini.asc
-RUN gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 \
-    && gpg --verify /tini.asc
-RUN chmod +x /tini
-
 RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install --no-install-recommends -q -y \
     bzip2 \
     ffmpeg \
     git \
@@ -29,7 +23,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /opt/zou /var/log/zou /opt/zou/thumbnails
+RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
+
+RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
 
 RUN git clone -b 0.11.6-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
@@ -78,6 +74,6 @@ RUN echo Initialising Zou... && \
     /opt/zou/init_zou.sh
 
 EXPOSE 80
-VOLUME ["/var/lib/postgresql", "/opt/zou/zou/thumbnails"]
-ENTRYPOINT ["/tini", "--"]
+VOLUME ["/var/lib/postgresql", "/opt/zou/zou/previews"]
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
 CMD ["/opt/zou/start_zou.sh"]
