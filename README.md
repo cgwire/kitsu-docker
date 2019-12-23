@@ -32,6 +32,12 @@ To update the database:
 $ docker exec -ti cgwire sh -c "zou upgrade_db"
 ```
 
+### Docker Compose
+
+Thanks to our community, for Docker Compose, two different implementations are available:
+
+* Mathieu Bouzard's [repo](https://gitlab.com/mathbou/docker-cgwire)
+* Manuel Rais's [contribution](https://github.com/cgwire/cgwire/tree/master/compose)
 
 ### About authors
 
