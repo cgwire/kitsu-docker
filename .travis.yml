@@ -20,10 +20,7 @@ install:
 
 deploy:
   provider: script
-  script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker tag cgwire/cgwire cgwire/cgwire:$TRAVIS_TAG
-    - docker push cgwire/cgwire:$TRAVIS_TAG
+  script: bash docker_push
   on:
     tags: true
     branch: master
