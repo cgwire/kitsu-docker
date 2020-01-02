@@ -3,12 +3,30 @@ python:
     - 2.7
     - 3.5
 
+
+stages:
+  - name: publish
+    # Don't run build stage for pull requests and other branches than master
+    # to save time and resources.
+    if: type != pull_request AND (branch = master OR tag IS present)
+
 services:
   - docker
 
 install:
-  - docker build -t cgwire .
-  - docker run -d -p 80:80 --name cgwire cgwire
+  - docker build -t cgwire/cgwire .
+  - docker run -d -p 80:80 --name cgwire cgwire/cgwire
+
+
+deploy:
+  provider: script
+  script:
+    - docker tag cgwire/cgwire cgwire/cgwire:$TRAVIS_TAG
+    - docker push cgwire/cgwire:$TRAVIS_TAG
+  on:
+    tags: true
+    branch: master
+
 
 script:
   - docker ps | grep -q cgwire
