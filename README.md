@@ -21,6 +21,13 @@ $ docker build -t cgwire .
 $ docker run -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/previews cgwire/cgwire
 ```
 
+To run the image as a daemon, add the `-d` flag:
+
+```bash
+$ docker build -t cgwire .
+$ docker run -d --rm -p 80:80 --name cgwire cgwire/cgwire
+```
+
 Credentials:
 
 * login: admin@example.com
