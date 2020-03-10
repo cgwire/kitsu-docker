@@ -1,6 +1,6 @@
 language: python
 python:
-    - 3.5
+    - 3.6
 
 
 stages:
@@ -27,7 +27,7 @@ deploy:
 
 script:
   - docker ps | grep -q cgwire
-  - pip install httpie
+  - pip3 install httpie
   - http localhost:80/api | grep Zou
   - http localhost:80 | grep Kitsu
   - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | grep true
