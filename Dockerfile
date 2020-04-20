@@ -27,14 +27,14 @@ RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 
 RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
 
-RUN git clone -b 0.11.37-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN git clone -b 0.11.39-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     # Python 2 needed for supervisord
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==0.11.37 && \
+    /opt/zou/env/bin/pip install zou==0.11.41 && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
