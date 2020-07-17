@@ -27,7 +27,7 @@ RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 
 RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
 
-RUN git clone -b 0.11.68-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN git clone -b 0.11.69-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
