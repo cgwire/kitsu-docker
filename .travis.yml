@@ -32,4 +32,4 @@ script:
   - pip3 install httpie
   - http localhost:80/api | grep Zou
   - http localhost:80 | grep Kitsu
-  - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | grep true
+  - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | grep '"login": true'
