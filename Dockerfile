@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -q -y \
     python3-setuptools \
     python3-venv \
     python3-wheel \
+    libjpeg-dev \
     redis-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
