@@ -10,7 +10,7 @@ purposes.
 ### Usage
 
 ```bash
-$ docker build -t cgwire .
+$ docker build -t cgwire/cgwire . # or sudo docker pull cgwire/cgwire
 $ docker run -ti --rm -p 80:80 --name cgwire cgwire/cgwire
 ```
 
