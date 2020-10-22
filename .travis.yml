@@ -1,9 +1,11 @@
 language: python
 python:
     - 3.6
-dist:
-    - focal
-    - bionic
+    
+jobs:
+  dist:
+     - focal
+     - bionic
 
 stages:
   - name: publish
