@@ -2,10 +2,10 @@ language: python
 python:
     - 3.6
     
-jobs:
-  dist:
-     - focal
-     - bionic
+os: linux
+dist:
+  - focal
+  - bionic
 
 stages:
   - name: publish
