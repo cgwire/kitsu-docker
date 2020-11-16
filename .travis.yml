@@ -3,9 +3,6 @@ python:
     - 3.6
     
 os: linux
-dist:
-  - focal
-  - bionic
 
 stages:
   - name: publish
@@ -30,7 +27,15 @@ deploy:
   on:
     tags: true
     branch: master
+    condition: '"${DEPLOY:-0}" -eq 1'
 
+jobs:
+  include:
+    - name: "Build with Ubuntu Bionic"
+      dist: bionic
+    - name: "Build with Ubuntu Focal"
+      dist: focal
+      env: DEPLOY=1
 
 script:
   - docker ps | grep -q cgwire
