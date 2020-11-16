@@ -38,5 +38,8 @@ script:
   - http localhost:80/api | grep Zou
   - http localhost:80 | grep Kitsu
   - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword
+  - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | jq --exit-status 'select(.error != true)'
+  - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | jq --exit-status 'select(.login == true)'
+  - http POST localhost:80/api/auth/login email=admin@example.com password=wrongpassword | jq --exit-status 'select(.login == false)'
+  - http POST localhost:80/api/auth/login email=missing@example.com password=wrongpassword | jq --exit-status 'select(.login == false)'
   - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | jq .login 
-  - http POST localhost:80/api/auth/login email=admin@example.com password=mysecretpassword | jq .login | grep true
