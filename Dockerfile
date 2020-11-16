@@ -51,8 +51,10 @@ RUN service postgresql start && \
 USER root
 
 # Wait for the startup or shutdown to complete
-COPY pg_ctl.conf /etc/postgresql/10/main/pg_ctl.conf
-RUN chmod 0644 /etc/postgresql/10/main/pg_ctl.conf && chown postgres:postgres /etc/postgresql/10/main/pg_ctl.conf
+COPY --chown=postgres:postgres pg_ctl.conf /etc/postgresql/10/main/pg_ctl.conf
+RUN chmod 0644 /etc/postgresql/10/main/pg_ctl.conf
+COPY --chown=postgres:postgres postgresql-log.conf /etc/postgresql/10/main/conf.d/postgresql-log.conf
+RUN chmod 0644 /etc/postgresql/10/main/conf.d/postgresql-log.conf
 
 
 COPY ./gunicorn /etc/zou/gunicorn.conf
