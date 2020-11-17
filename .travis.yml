@@ -21,7 +21,7 @@ before_install:
 
 install:
   - docker build -t cgwire/cgwire .
-  - docker run -d -p 80:80 --name cgwire cgwire/cgwire
+  - docker run --init -d -p 80:80 --name cgwire cgwire/cgwire
 
 
 deploy:

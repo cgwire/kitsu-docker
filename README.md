@@ -11,19 +11,19 @@ purposes.
 
 ```bash
 $ docker build -t cgwire/cgwire . # or sudo docker pull cgwire/cgwire
-$ docker run -ti --rm -p 80:80 --name cgwire cgwire/cgwire
+$ docker run --init -ti --rm -p 80:80 --name cgwire cgwire/cgwire
 ```
 
 In order to enable data persistence, use a named volume for the database and thumbnails:
 
 ```bash
-$ docker run -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/previews cgwire/cgwire
+$ docker run --init -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/previews cgwire/cgwire
 ```
 
 To run the image as a daemon, add the `-d` flag:
 
 ```bash
-$ docker run -d --rm -p 80:80 --name cgwire cgwire/cgwire
+$ docker run --init -d --rm -p 80:80 --name cgwire cgwire/cgwire
 ```
 
 Credentials:
