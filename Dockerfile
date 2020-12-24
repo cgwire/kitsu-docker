@@ -34,7 +34,7 @@ RUN git clone -b 0.12.35-build --single-branch --depth 1 https://github.com/cgwi
 WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==0.12.29 && \
+    /opt/zou/env/bin/pip install zou==0.12.30 && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
