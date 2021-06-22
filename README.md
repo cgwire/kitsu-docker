@@ -39,7 +39,7 @@ $ docker exec -ti cgwire sh -c "zou upgrade_db"
 
 ### Docker Compose
 
-Thanks to our community, for Docker Compose, [an implementation is available by Mathieu Bouzard](https://gitlab.com/mathbou/docker-cgwire)
+Thanks to our community, for Docker Compose, [an implementation by Mathieu Bouzard](https://gitlab.com/mathbou/docker-cgwire)
 is available
 
 ### About authors
