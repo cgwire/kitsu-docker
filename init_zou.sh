@@ -7,9 +7,9 @@ service redis-server start
 
 . /opt/zou/env/bin/activate
 
-zou upgrade_db
-zou init_data
-zou create_admin admin@example.com --password mysecretpassword
+zou upgrade-db
+zou init-data
+zou create-admin admin@example.com --password mysecretpassword
 
 service postgresql stop
 service redis-server stop
