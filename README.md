@@ -34,7 +34,7 @@ Credentials:
 To update the database:
 
 ```bash
-$ docker exec -ti cgwire sh -c "zou upgrade_db"
+$ docker exec -ti cgwire sh -c "zou upgrade-db"
 ```
 
 ### Docker Compose
