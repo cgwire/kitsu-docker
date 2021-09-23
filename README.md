@@ -5,7 +5,7 @@ Docker container for [Kitsu](https://kitsu.cg-wire.com/).
 It is not recommended to use this image in production. It is aimed at testing
 purposes.
 
-[![Build badge](https://travis-ci.com/cgwire/cgwire.svg?branch=master)](https://travis-ci.com/cgwire/cgwire)
+[![Build badge](https://app.travis-ci.com/cgwire/cgwire.svg?branch=master)](https://app.travis-ci.com/cgwire/cgwire)
 
 ### Usage
 
