@@ -1,7 +1,7 @@
 language: python
 python:
-    - 3.6
-    
+  - 3.6
+
 os: linux
 
 stages:
@@ -12,7 +12,7 @@ stages:
 
 services:
   - docker
-  
+
 before_install:
   - sudo apt-get -y install jq
 
