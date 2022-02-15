@@ -2,9 +2,9 @@ FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.13.27
+ARG ZOU_VERSION=0.13.32
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.13.42-build
+ARG KITSU_VERSION=0.13.45-build
 
 USER root
 
