@@ -38,7 +38,7 @@ RUN git clone -b ${KITSU_VERSION} --single-branch --depth 1 https://github.com/c
 WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==${ZOU_VERSION} && \
+    /opt/zou/env/bin/pip install zou==${ZOU_VERSION} Jinja2==3.0.3 && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
