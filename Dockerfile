@@ -1,6 +1,8 @@
 FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PG_VERSION=12
+ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
 ARG ZOU_VERSION=0.13.43
 # https://github.com/cgwire/kitsu/tags
@@ -8,8 +10,8 @@ ARG KITSU_VERSION=0.13.55-build
 
 USER root
 
-RUN apt-get update && apt-get install --no-install-recommends -y software-properties-common
-RUN apt-get update && apt-get install --no-install-recommends -q -y \
+RUN apt-get update && \
+    apt-get install --no-install-recommends -q -y \
     bzip2 \
     ffmpeg \
     git \
@@ -23,9 +25,27 @@ RUN apt-get update && apt-get install --no-install-recommends -q -y \
     python3-venv \
     libjpeg-dev \
     redis-server \
+    software-properties-common \
     supervisor && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+
+# Create database
+USER postgres
+
+RUN service postgresql start && \
+    createuser root && createdb -T template0 -E UTF8 --owner root root && \
+    createdb -T template0 -E UTF8 --owner root zoudb && \
+    service postgresql stop
+
+USER root
+
+# Wait for the startup or shutdown to complete
+COPY --chown=postgres:postgres pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
+RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
+COPY --chown=postgres:postgres postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
+RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
 
 RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 
@@ -43,24 +63,6 @@ RUN python3 -m venv /opt/zou/env && \
 
 WORKDIR /opt/zou
 
-# Create database
-USER postgres
-
-RUN service postgresql start && \
-    createuser root && createdb -T template0 -E UTF8 --owner root root && \
-    createdb -T template0 -E UTF8 --owner root zoudb && \
-    service postgresql stop
-
-USER root
-
-# Wait for the startup or shutdown to complete
-ENV PG_VERSION=12
-COPY --chown=postgres:postgres pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
-RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
-COPY --chown=postgres:postgres postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
-RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
-
-
 COPY ./gunicorn /etc/zou/gunicorn.conf
 COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
 
@@ -70,7 +72,6 @@ RUN rm /etc/nginx/sites-enabled/default
 
 ADD supervisord.conf /etc/supervisord.conf
 
-ENV DB_USERNAME=root DB_HOST=
 COPY ./init_zou.sh /opt/zou/
 COPY ./start_zou.sh /opt/zou/
 RUN chmod +x /opt/zou/init_zou.sh /opt/zou/start_zou.sh
