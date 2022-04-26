@@ -30,6 +30,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN pip install sendria && \
+    rm -rf /root/.cache/pip/
 
 # Create database
 USER postgres
@@ -80,5 +82,6 @@ RUN echo Initialising Zou... && \
     /opt/zou/init_zou.sh
 
 EXPOSE 80
+EXPOSE 1080
 VOLUME ["/var/lib/postgresql", "/opt/zou/previews"]
 CMD ["/opt/zou/start_zou.sh"]
