@@ -2,8 +2,12 @@
 
 Docker container for [Kitsu](https://kitsu.cg-wire.com/).
 
-It is not recommended to use this image in production. It is aimed at testing
-purposes.
+It is not recommended to use this image in production. It is intended for Kitsu
+testing.
+
+For this purpose, to simplify email testing, we include an email catch-all
+application to intercept all emails sent by Kitsu. These can be viewed in an
+included webmail.
 
 [![Build badge](https://app.travis-ci.com/cgwire/cgwire.svg?branch=master)](https://app.travis-ci.com/cgwire/cgwire)
 
@@ -11,25 +15,29 @@ purposes.
 
 ```bash
 $ docker build -t cgwire/cgwire . # or sudo docker pull cgwire/cgwire
-$ docker run --init -ti --rm -p 80:80 --name cgwire cgwire/cgwire
+$ docker run --init -ti --rm -p 80:80 -p 1080:1080 --name cgwire cgwire/cgwire
 ```
 
 In order to enable data persistence, use a named volume for the database and thumbnails:
 
 ```bash
-$ docker run --init -ti --rm -p 80:80 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/previews cgwire/cgwire
+$ docker run --init -ti --rm -p 80:80 -p 1080:1080 --name cgwire -v zou-storage:/var/lib/postgresql -v zou-storage:/opt/zou/previews cgwire/cgwire
 ```
 
 To run the image as a daemon, add the `-d` flag:
 
 ```bash
-$ docker run --init -d --rm -p 80:80 --name cgwire cgwire/cgwire
+$ docker run --init -d --rm -p 80:80 -p 1080:1080 --name cgwire cgwire/cgwire
 ```
 
-Credentials:
+Kitsu credentials:
 
 * login: admin@example.com
 * password: mysecretpassword
+
+URL:
+Kitsu: [http://127.0.0.1:80/](http://127.0.0.1:80/)
+Internal webmail: [http://127.0.0.1:1080/](http://127.0.0.1:80/)
 
 To update the database:
 
