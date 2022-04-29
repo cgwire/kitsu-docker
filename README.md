@@ -36,8 +36,10 @@ Kitsu credentials:
 * password: mysecretpassword
 
 URL:
+
 Kitsu: [http://127.0.0.1:80/](http://127.0.0.1:80/)
-Internal webmail: [http://127.0.0.1:1080/](http://127.0.0.1:80/)
+
+Internal webmail: [http://127.0.0.1:1080/](http://127.0.0.1:1080/)
 
 To update the database:
 
