@@ -8,7 +8,7 @@ stages:
   - name: publish
     # Don't run build stage for pull requests and other branches than master
     # to save time and resources.
-    if: type != pull_request AND (branch = master OR tag IS present)
+    if: (branch = master OR tag IS present)
 
 services:
   - docker
