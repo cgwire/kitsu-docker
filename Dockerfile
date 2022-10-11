@@ -4,9 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.15.7
+ARG ZOU_VERSION=0.15.8
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.15.10-build
+ARG KITSU_VERSION=0.15.11
 
 USER root
 
@@ -54,7 +54,9 @@ RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
 
 RUN git config --global --add advice.detachedHead false
-RUN git clone -b ${KITSU_VERSION} --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN ( wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/download/v${KITSU_VERSION}/kitsu-${KITSU_VERSION}.tgz && \
+	mkdir -p /opt/zou/kitsu && tar xzf -C /opt/zou/kitsu /tmp/kitsu.tgz && rm /tmp/kitsu.tgz) || \
+	git clone -b ${KITSU_VERSION}-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
