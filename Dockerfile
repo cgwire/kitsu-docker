@@ -4,9 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.15.8
+ARG ZOU_VERSION=0.15.9
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.15.11
+ARG KITSU_VERSION=0.15.13
 
 USER root
 
@@ -24,6 +24,7 @@ RUN apt-get update && \
     python3-pip \
     python3-venv \
     libjpeg-dev \
+    libpq-dev \
     redis-server \
     software-properties-common \
     supervisor && \
