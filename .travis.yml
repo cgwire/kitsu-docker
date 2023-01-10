@@ -21,13 +21,13 @@ install:
   - docker run --init -d -p 80:80 --name cgwire cgwire/cgwire
 
 
-deploy:
-  provider: script
-  script: bash docker_push
-  on:
-    tags: true
-    branch: master
-    condition: '"${DEPLOY:-0}" -eq 1'
+# deploy:
+#   provider: script
+#   script: bash docker_push
+#   on:
+#     tags: true
+#     branch: master
+#     condition: '"${DEPLOY:-0}" -eq 1'
 
 jobs:
   include:
