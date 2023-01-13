@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.3
 FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
