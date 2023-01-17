@@ -8,7 +8,7 @@ stages:
   - name: publish
     # Don't run build stage for pull requests and other branches than master
     # to save time and resources.
-    if: (branch = master OR tag IS present)
+    if: (branch = master)
 
 services:
   - docker
@@ -17,7 +17,8 @@ before_install:
   - sudo apt-get -y install jq
 
 install:
-  - docker build -t cgwire/cgwire .
+  # - docker build -t cgwire/cgwire .
+  - docker pull cgwire/cgwire
   - docker run --init -d -p 80:80 --name cgwire cgwire/cgwire
 
 
@@ -31,8 +32,6 @@ install:
 
 jobs:
   include:
-    - name: "Build with Ubuntu Bionic"
-      dist: bionic
     - name: "Build with Ubuntu Focal"
       dist: focal
       env: DEPLOY=1
