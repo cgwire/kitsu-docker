@@ -4,13 +4,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.15.36
+ARG ZOU_VERSION=0.16.4
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.15.49
+ARG KITSU_VERSION=0.16.1
 
 USER root
 
-RUN apt-get update && \
+RUN cp /etc/apt/sources.list /tmp/sources.list && \
+    sed -i 's#http://ports.ubuntu.com/ubuntu-ports/#http://mirrors.ocf.berkeley.edu/ubuntu-ports/#g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install --no-install-recommends -q -y \
     bzip2 \
     ffmpeg \
@@ -29,7 +31,8 @@ RUN apt-get update && \
     software-properties-common \
     supervisor && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    mv /tmp/sources.list /etc/apt/sources.list
 
 RUN pip install sendria && \
     rm -rf /root/.cache/pip/
@@ -63,7 +66,7 @@ RUN ( wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/downloa
 WORKDIR /opt/zou/zou
 RUN python3 -m venv /opt/zou/env && \
     /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==${ZOU_VERSION} Jinja2==3.0.3 && \
+    /opt/zou/env/bin/pip install zou==${ZOU_VERSION} && \
     rm -rf /root/.cache/pip/
 
 WORKDIR /opt/zou
