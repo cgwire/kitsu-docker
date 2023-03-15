@@ -44,7 +44,7 @@ Internal webmail: [http://127.0.0.1:1080/](http://127.0.0.1:1080/)
 To update the database:
 
 ```bash
-$ docker exec -ti cgwire sh -c "zou upgrade-db"
+$ docker exec -ti cgwire sh -c "/opt/zou/env/bin/zou upgrade-db"
 ```
 
 ### Docker Compose
