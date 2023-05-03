@@ -4,9 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.16.14
+ARG ZOU_VERSION=0.16.19
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.16.9
+ARG KITSU_VERSION=0.16.14
 
 USER root
 
@@ -15,6 +15,7 @@ RUN cp /etc/apt/sources.list /tmp/sources.list && \
     apt-get update && \
     apt-get install --no-install-recommends -q -y \
     bzip2 \
+    build-essential \
     ffmpeg \
     git \
     gcc \
@@ -29,7 +30,8 @@ RUN cp /etc/apt/sources.list /tmp/sources.list && \
     libpq-dev \
     redis-server \
     software-properties-common \
-    supervisor && \
+    supervisor \
+    wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     mv /tmp/sources.list /etc/apt/sources.list
