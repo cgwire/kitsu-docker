@@ -60,9 +60,8 @@ RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
 
 RUN git config --global --add advice.detachedHead false
-RUN ( wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/download/v${KITSU_VERSION}/kitsu-${KITSU_VERSION}.tgz && \
-	mkdir -p /opt/zou/kitsu && tar xzf -C /opt/zou/kitsu /tmp/kitsu.tgz && rm /tmp/kitsu.tgz) || \
-	git clone -b ${KITSU_VERSION}-build --single-branch --depth 1 https://github.com/cgwire/kitsu.git /opt/zou/kitsu
+RUN wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/download/v${KITSU_VERSION}/kitsu-${KITSU_VERSION}.tgz && \
+	mkdir -p /opt/zou/kitsu && tar xvzf /tmp/kitsu.tgz -C /opt/zou/kitsu && rm /tmp/kitsu.tgz
 
 # setup.py will read requirements.txt in the current directory
 WORKDIR /opt/zou/zou
