@@ -2,6 +2,8 @@
 
 Docker container for [Kitsu](https://kitsu.cg-wire.com/).
 
+If you like the project, please add a star to the [Kitsu repository](https://github.com/cgwire/kitsu).
+
 It is not recommended to use this image in production. It is intended for Kitsu
 testing.
 
@@ -41,7 +43,9 @@ Kitsu: [http://127.0.0.1:80/](http://127.0.0.1:80/)
 
 Internal webmail: [http://127.0.0.1:1080/](http://127.0.0.1:1080/)
 
-To update the database:
+### Update
+
+After updating the image, you have to update the database schema. For that run:
 
 ```bash
 $ docker exec -ti cgwire sh -c "/opt/zou/env/bin/zou upgrade-db"
@@ -54,15 +58,10 @@ is available
 
 ### About authors
 
-This Dockerfile is written by CG Wire, a company based in France. We help small
-to midsize CG studios to manage their production and build a pipeline
-efficiently.
+This Dockerfile is written by CGWire, a company based in France. We help 
+animation and VFX studios to collaborate better through efficient tooling.
 
-We apply software craftsmanship principles as much as possible. We love
-coding and consider that strong quality and good developer experience matter a
- lot.
-Through our diverse experiences, we allow studios to get better at doing
-software and focus more on  artistic work.
+More than 100 studios around the world use Kitsu for their projects.
 
 Visit [cg-wire.com](https://cg-wire.com) for more information.
 
