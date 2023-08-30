@@ -4,15 +4,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
-ARG ZOU_VERSION=0.17.20
+ARG ZOU_VERSION=0.17.23
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.17.17
+ARG KITSU_VERSION=0.17.19
 
 USER root
 
-RUN cp /etc/apt/sources.list /tmp/sources.list && \
-    sed -i 's#http://ports.ubuntu.com/ubuntu-ports/#http://mirrors.ocf.berkeley.edu/ubuntu-ports/#g' /etc/apt/sources.list && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install --no-install-recommends -q -y \
     bzip2 \
     build-essential \
@@ -33,8 +31,7 @@ RUN cp /etc/apt/sources.list /tmp/sources.list && \
     supervisor \
     wget && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    mv /tmp/sources.list /etc/apt/sources.list
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip install sendria && \
     rm -rf /root/.cache/pip/
