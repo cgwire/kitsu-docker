@@ -47,9 +47,9 @@ RUN service postgresql start && \
 USER root
 
 # Wait for the startup or shutdown to complete
-COPY --chown=postgres:postgres pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
+COPY --chown=postgres:postgres ./docker/pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
 RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
-COPY --chown=postgres:postgres postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
+COPY --chown=postgres:postgres ./docker/postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
 RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
 
 RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
@@ -69,17 +69,17 @@ RUN python3 -m venv /opt/zou/env && \
 
 WORKDIR /opt/zou
 
-COPY ./gunicorn /etc/zou/gunicorn.conf
-COPY ./gunicorn-events /etc/zou/gunicorn-events.conf
+COPY ./docker/gunicorn.py /etc/zou/gunicorn.py
+COPY ./docker/gunicorn-events.py /etc/zou/gunicorn-events.py
 
-COPY ./nginx.conf /etc/nginx/sites-available/zou
+COPY ./docker/nginx.conf /etc/nginx/sites-available/zou
 RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
 RUN rm /etc/nginx/sites-enabled/default
 
-ADD supervisord.conf /etc/supervisord.conf
+ADD docker/supervisord.conf /etc/supervisord.conf
 
-COPY ./init_zou.sh /opt/zou/
-COPY ./start_zou.sh /opt/zou/
+COPY ./docker/init_zou.sh /opt/zou/
+COPY ./docker/start_zou.sh /opt/zou/
 RUN chmod +x /opt/zou/init_zou.sh /opt/zou/start_zou.sh
 
 RUN echo Initialising Zou... && \
