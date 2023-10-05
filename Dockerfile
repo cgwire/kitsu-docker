@@ -10,7 +10,9 @@ ARG KITSU_VERSION=0.17.30
 
 USER root
 
-RUN apt-get update && \
+# hadolint ignore=DL3008
+RUN mkdir -p /opt/zou/zou /var/log/zou /opt/zou/previews && \
+    apt-get update && \
     apt-get install --no-install-recommends -q -y \
     bzip2 \
     build-essential \
@@ -33,54 +35,40 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install sendria && \
-    rm -rf /root/.cache/pip/
-
 # Create database
 USER postgres
 
+# hadolint ignore=DL3001
 RUN service postgresql start && \
     createuser root && createdb -T template0 -E UTF8 --owner root root && \
     createdb -T template0 -E UTF8 --owner root zoudb && \
     service postgresql stop
 
+# hadolint ignore=DL3002
 USER root
 
 # Wait for the startup or shutdown to complete
-COPY --chown=postgres:postgres ./docker/pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
-RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
-COPY --chown=postgres:postgres ./docker/postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
-RUN chmod 0644 /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
-
-RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
-
-RUN mkdir -p /opt/zou /var/log/zou /opt/zou/previews
-
-RUN git config --global --add advice.detachedHead false
-RUN wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/download/v${KITSU_VERSION}/kitsu-${KITSU_VERSION}.tgz && \
-	mkdir -p /opt/zou/kitsu && tar xvzf /tmp/kitsu.tgz -C /opt/zou/kitsu && rm /tmp/kitsu.tgz
-
-# setup.py will read requirements.txt in the current directory
-WORKDIR /opt/zou/zou
-RUN python3 -m venv /opt/zou/env && \
-    /opt/zou/env/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/zou/env/bin/pip install zou==${ZOU_VERSION} && \
-    rm -rf /root/.cache/pip/
+COPY --chown=postgres:postgres --chmod=0644 ./docker/pg_ctl.conf /etc/postgresql/${PG_VERSION}/main/pg_ctl.conf
+COPY --chown=postgres:postgres --chmod=0644 ./docker/postgresql-log.conf /etc/postgresql/${PG_VERSION}/main/conf.d/postgresql-log.conf
+# hadolint ignore=DL3013
+RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf && \
+    git config --global --add advice.detachedHead false && \
+    wget -q -O /tmp/kitsu.tgz https://github.com/cgwire/kitsu/releases/download/v${KITSU_VERSION}/kitsu-${KITSU_VERSION}.tgz && \
+    mkdir -p /opt/zou/kitsu && tar xvzf /tmp/kitsu.tgz -C /opt/zou/kitsu && rm /tmp/kitsu.tgz && \
+    python3 -m venv /opt/zou/env && \
+    /opt/zou/env/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    /opt/zou/env/bin/pip install --no-cache-dir zou==${ZOU_VERSION} && \
+    pip install --no-cache-dir sendria && \
+    rm /etc/nginx/sites-enabled/default
 
 WORKDIR /opt/zou
 
 COPY ./docker/gunicorn.py /etc/zou/gunicorn.py
 COPY ./docker/gunicorn-events.py /etc/zou/gunicorn-events.py
-
-COPY ./docker/nginx.conf /etc/nginx/sites-available/zou
-RUN ln -s /etc/nginx/sites-available/zou /etc/nginx/sites-enabled/
-RUN rm /etc/nginx/sites-enabled/default
-
-ADD docker/supervisord.conf /etc/supervisord.conf
-
-COPY ./docker/init_zou.sh /opt/zou/
-COPY ./docker/start_zou.sh /opt/zou/
-RUN chmod +x /opt/zou/init_zou.sh /opt/zou/start_zou.sh
+COPY ./docker/nginx.conf /etc/nginx/sites-enabled/zou
+COPY docker/supervisord.conf /etc/supervisord.conf
+COPY --chmod=0755 ./docker/init_zou.sh /opt/zou/
+COPY --chmod=0755 ./docker/start_zou.sh /opt/zou/
 
 RUN echo Initialising Zou... && \
     /opt/zou/init_zou.sh
