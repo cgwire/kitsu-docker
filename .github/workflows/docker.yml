@@ -40,6 +40,14 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Load Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
           load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -48,14 +56,8 @@ jobs:
           export CONTAINER_NAME=cgwire
           echo "KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}" >> docker.env
           echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker.env
-          # Test amd64
+
           docker container run --platform=linux/amd64 -d --init -p 80:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
-          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
-          sleep 10
-          docker container run --env-file docker.env cgwire/kitsu-checker:latest
-          docker kill ${CONTAINER_NAME}
-          # Test arm64
-          docker container run --platform=linux/arm64 -d --init -p 80:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
           echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
           sleep 10
           docker container run --env-file docker.env cgwire/kitsu-checker:latest
