@@ -64,7 +64,7 @@ jobs:
           echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker.env
 
           docker container run --platform=linux/amd64 -d --init -p ${LOCAL_PORT}:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
-          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]'):${LOCAL_PORT}" >> docker.env
+          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
           sleep 10
           docker container run --env-file docker.env cgwire/kitsu-checker:latest
           docker kill ${CONTAINER_NAME}
@@ -88,7 +88,7 @@ jobs:
           echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker.env
 
           docker container run --platform=linux/arm64 -d --init -p ${LOCAL_PORT}:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
-          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]'):${LOCAL_PORT}" >> docker.env
+          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
           sleep 30
           docker container run --env-file docker.env cgwire/kitsu-checker:latest
           docker kill ${CONTAINER_NAME}
