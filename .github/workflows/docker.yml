@@ -57,16 +57,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       - name: Test docker amd64 image
         run: |
-          export CONTAINER_NAME=cgwire-amd64
+          export CONTAINER_ARCH=arm64
+          export CONTAINER_NAME=cgwire-${CONTAINER_ARCH}
           export LOCAL_PORT=8001
 
-          echo "KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}" >> docker.env
-          echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker.env
+          > docker-${CONTAINER_ARCH}.env
+          echo "KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}" >> docker-${CONTAINER_ARCH}.env
+          echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker-${CONTAINER_ARCH}.env
 
           docker container run --platform=linux/amd64 -d --init -p ${LOCAL_PORT}:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
-          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
+          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker-${CONTAINER_ARCH}.env
           sleep 10
-          docker container run --env-file docker.env cgwire/kitsu-checker:latest
+          docker container run --env-file docker-${CONTAINER_ARCH}.env cgwire/kitsu-checker:latest
           docker kill ${CONTAINER_NAME}
 
       # arm64
@@ -81,16 +83,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       - name: Test docker arm64 image
         run: |
-          export CONTAINER_NAME=cgwire-arm64
+          export CONTAINER_ARCH=arm64
+          export CONTAINER_NAME=cgwire-${CONTAINER_ARCH}
           export LOCAL_PORT=8002
 
-          echo "KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}" >> docker.env
-          echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker.env
+          > docker-${CONTAINER_ARCH}.env
+          echo "KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}" >> docker-${CONTAINER_ARCH}.env
+          echo "ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}" >> docker-${CONTAINER_ARCH}.env
 
           docker container run --platform=linux/arm64 -d --init -p ${LOCAL_PORT}:80 --rm --name ${CONTAINER_NAME} cgwire/cgwire:latest
-          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker.env
+          echo "KITSU_URL=http://$(docker inspect ${CONTAINER_NAME} | jq -r '.[0]["NetworkSettings"]["IPAddress"]')" >> docker-${CONTAINER_ARCH}.env
           sleep 30
-          docker container run --env-file docker.env cgwire/kitsu-checker:latest
+          docker container run --env-file docker-${CONTAINER_ARCH}.env cgwire/kitsu-checker:latest
           docker kill ${CONTAINER_NAME}
 
       - name: Push Docker image
