@@ -1,7 +1,7 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PG_VERSION=12
+ENV PG_VERSION=14
 ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
 ARG ZOU_VERSION=0.19.52
@@ -31,6 +31,7 @@ RUN mkdir -p /opt/zou/zou /var/log/zou /opt/zou/previews && \
     redis-server \
     software-properties-common \
     supervisor \
+    xmlsec1 \
     wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
