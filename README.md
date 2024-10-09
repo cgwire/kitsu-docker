@@ -53,8 +53,41 @@ $ docker exec -ti cgwire sh -c "/opt/zou/env/bin/zou upgrade-db"
 
 ### Docker Compose
 
-Thanks to our community, for Docker Compose, [an implementation by Mathieu Bouzard](https://gitlab.com/mathbou/docker-cgwire)
-is available
+`docker-compose.yml`
+---
+```yml
+services:
+  cgwire:
+    image: cgwire/cgwire:latest
+    container_name: kitsu
+    init: true
+    tty: true
+    stdin_open: true
+    ports:
+      - 8012:80 # Change the port 8012 to your desired port.
+      - 1080:1080
+    volumes:
+      - zou-storage:/var/lib/postgresql
+      - zou-storage:/opt/zou/previews
+
+volumes:
+  zou-storage:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: './zou-storage'
+```
+* Save this in a file and name it `docker-compose.yml`.
+* Create the folder `zou-storage` in the same folder as the `docker-compose.yml`.
+* Open the terminal in the same folder.
+* Run `docker compose up-d`.
+* Done...... (Hopefully 🤞🤞)
+
+Please test if the data is persisting after reboot or recreation. (Only tested in windows.)
+
+Also [an implementation by Mathieu Bouzard](https://gitlab.com/mathbou/docker-cgwire)
+is available.
 
 ### About authors
 
