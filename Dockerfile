@@ -6,7 +6,7 @@ ENV DB_USERNAME=root DB_HOST=
 # https://github.com/cgwire/zou/tags
 ARG ZOU_VERSION=0.20.15
 # https://github.com/cgwire/kitsu/tags
-ARG KITSU_VERSION=0.20.27
+ARG KITSU_VERSION=0.20.28
 
 USER root
 
