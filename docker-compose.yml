@@ -1,0 +1,22 @@
+services:
+  cgwire:
+    image: cgwire/cgwire:latest
+    container_name: kitsu
+    init: true
+    tty: true
+    stdin_open: true
+    ports:
+      - 8012:80  # you can change 8012 if needed
+      - 1080:1080
+    volumes:
+      - zou-storage:/var/lib/postgresql
+      - zou-storage:/opt/zou/previews
+
+volumes:
+  zou-storage:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: './zou-storage'
+
