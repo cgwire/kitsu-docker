@@ -11,8 +11,6 @@ For this purpose, to simplify email testing, we include an email catch-all
 application to intercept all emails sent by Kitsu. These can be viewed in an
 included webmail.
 
-[![Build badge](https://app.travis-ci.com/cgwire/cgwire.svg?branch=master)](https://app.travis-ci.com/cgwire/cgwire)
-
 ### Usage
 
 ```bash
