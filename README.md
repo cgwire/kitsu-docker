@@ -35,6 +35,8 @@ Kitsu credentials:
 * login: admin@example.com
 * password: mysecretpassword
 
+Update the profile settings with a working email address to try all features.
+
 URL:
 
 Kitsu: [http://127.0.0.1:80/](http://127.0.0.1:80/)
