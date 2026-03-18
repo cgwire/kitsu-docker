@@ -124,5 +124,39 @@ release:
 hub:
     open https://hub.docker.com/r/cgwire/cgwire/tags
 
+# Update GitHub Actions pinned SHAs to their latest release
+update-actions:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    WORKFLOW=".github/workflows/docker.yml"
+    # Extract unique action references (owner/repo@sha)
+    actions=$(sed -n 's/.*uses: \([^@]*\)@.*/\1/p' "$WORKFLOW" | sort -u)
+    for action in $actions; do
+        echo "--- ${action}"
+        # Get latest release tag
+        tag=$(curl -s "https://api.github.com/repos/${action}/releases/latest" | jq -r '.tag_name')
+        if [ "$tag" = "null" ]; then
+            tag=$(curl -s "https://api.github.com/repos/${action}/tags" | jq -r '.[0].name')
+        fi
+        # Resolve tag to commit SHA (handle annotated tags)
+        ref=$(curl -s "https://api.github.com/repos/${action}/git/ref/tags/${tag}")
+        sha=$(echo "$ref" | jq -r '.object.sha')
+        obj_type=$(echo "$ref" | jq -r '.object.type')
+        if [ "$obj_type" = "tag" ]; then
+            sha=$(curl -s "https://api.github.com/repos/${action}/git/tags/${sha}" | jq -r '.object.sha')
+        fi
+        echo "  ${tag} -> ${sha}"
+        # Get current SHA from workflow
+        old_sha=$(grep -m1 "uses: ${action}@" "$WORKFLOW" | sed 's/.*@\([a-f0-9]*\).*/\1/')
+        if [ "$old_sha" = "$sha" ]; then
+            echo "  (already up to date)"
+        else
+            sed -i'' -e "s|${action}@${old_sha}.*|${action}@${sha} # ${tag}|" "$WORKFLOW"
+            echo "  updated from ${old_sha}"
+        fi
+    done
+    echo ""
+    GIT_PAGER="" git diff "$WORKFLOW"
+
 # Full local workflow: update versions, build, check, release
 all: update-versions build check-all release
