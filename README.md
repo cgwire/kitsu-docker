@@ -1,5 +1,7 @@
 # Kitsu Docker
 
+[![Docker](https://github.com/cgwire/kitsu-docker/actions/workflows/docker.yml/badge.svg)](https://github.com/cgwire/kitsu-docker/actions/workflows/docker.yml)
+
 Docker container for [Kitsu](https://kitsu.cg-wire.com/).
 
 If you like the project, please add a star to the [Kitsu repository](https://github.com/cgwire/kitsu).
