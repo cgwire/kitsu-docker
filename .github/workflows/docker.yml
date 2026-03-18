@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  IMAGE: cgwire/cgwire
+
 jobs:
   versions:
     runs-on: ubuntu-latest
@@ -69,24 +72,45 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push single-platform image
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           context: .
           file: ./Dockerfile
           platforms: ${{ matrix.platform }}
-          push: true
           build-args: |
             KITSU_VERSION=${{ needs.versions.outputs.kitsu_version }}
             ZOU_VERSION=${{ needs.versions.outputs.zou_version }}
-          tags: cgwire/cgwire:${{ needs.versions.outputs.image_tag }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ matrix.platform }}
           cache-to: type=gha,scope=${{ matrix.platform }},mode=max
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@ea165f8d65b6db9a6b7c67862cd61e31b2b9adf9 # v4.6.2
+        with:
+          name: digest-${{ matrix.runner }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
   merge:
     needs: [versions, build]
     runs-on: ubuntu-latest
     steps:
+      - name: Download digests
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: /tmp/digests
+          pattern: digest-*
+          merge-multiple: true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
@@ -100,9 +124,16 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
         run: |
+          cd /tmp/digests
           docker buildx imagetools create \
-            --tag "cgwire/cgwire:${IMAGE_TAG}" \
-            "cgwire/cgwire:${IMAGE_TAG}"
+            --tag "${{ env.IMAGE }}:${IMAGE_TAG}" \
+            $(printf '${{ env.IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect manifest
+        env:
+          IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
+        run: |
+          docker buildx imagetools inspect "${{ env.IMAGE }}:${IMAGE_TAG}"
 
   test:
     needs: [versions, merge]
@@ -131,9 +162,9 @@ jobs:
         run: |
           CONTAINER_NAME=cgwire-${{ matrix.platform }}
 
-          docker pull "cgwire/cgwire:${IMAGE_TAG}"
+          docker pull "${{ env.IMAGE }}:${IMAGE_TAG}"
 
-          docker container run -d --init -p 8080:80 --rm --name "${CONTAINER_NAME}" "cgwire/cgwire:${IMAGE_TAG}"
+          docker container run -d --init -p 8080:80 --rm --name "${CONTAINER_NAME}" "${{ env.IMAGE }}:${IMAGE_TAG}"
 
           sleep ${{ matrix.sleep }}
 
@@ -166,6 +197,6 @@ jobs:
           IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
         run: |
           docker buildx imagetools create \
-            "cgwire/cgwire:${IMAGE_TAG}" \
-            --tag "cgwire/cgwire:${KITSU_VERSION}" \
-            --tag "cgwire/cgwire:latest"
+            "${{ env.IMAGE }}:${IMAGE_TAG}" \
+            --tag "${{ env.IMAGE }}:${KITSU_VERSION}" \
+            --tag "${{ env.IMAGE }}:latest"
