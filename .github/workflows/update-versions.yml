@@ -1,0 +1,78 @@
+name: Update versions
+
+on:
+  schedule:
+    # Every hour at :00
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Fetch latest versions from GitHub
+        id: fetch
+        run: |
+          KITSU_VERSION=$(curl -s https://api.github.com/repos/cgwire/kitsu/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          ZOU_VERSION=$(curl -s https://api.github.com/repos/cgwire/zou/tags | jq -r '.[0].name' | sed 's/^v//')
+
+          for v in "$KITSU_VERSION" "$ZOU_VERSION"; do
+            if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::Invalid version format: $v"
+              exit 1
+            fi
+          done
+
+          echo "KITSU_VERSION=${KITSU_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "ZOU_VERSION=${ZOU_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Compare with current versions
+        id: compare
+        env:
+          LATEST_KITSU: ${{ steps.fetch.outputs.KITSU_VERSION }}
+          LATEST_ZOU: ${{ steps.fetch.outputs.ZOU_VERSION }}
+        run: |
+          set -a
+          source versions.env
+          set +a
+
+          echo "Current: Kitsu=${KITSU_VERSION} Zou=${ZOU_VERSION}"
+          echo "Latest:  Kitsu=${LATEST_KITSU} Zou=${LATEST_ZOU}"
+
+          if [ "$KITSU_VERSION" = "$LATEST_KITSU" ] && [ "$ZOU_VERSION" = "$LATEST_ZOU" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No updates needed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Updates available!"
+          fi
+
+      - name: Update versions.env
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          LATEST_KITSU: ${{ steps.fetch.outputs.KITSU_VERSION }}
+          LATEST_ZOU: ${{ steps.fetch.outputs.ZOU_VERSION }}
+        run: |
+          sed -i "s/^KITSU_VERSION=.*/KITSU_VERSION=${LATEST_KITSU}/" versions.env
+          sed -i "s/^ZOU_VERSION=.*/ZOU_VERSION=${LATEST_ZOU}/" versions.env
+          sed -i "s/^INDEX_VERSION=.*/INDEX_VERSION=01/" versions.env
+          cat versions.env
+
+      - name: Commit and push
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          LATEST_KITSU: ${{ steps.fetch.outputs.KITSU_VERSION }}
+          LATEST_ZOU: ${{ steps.fetch.outputs.ZOU_VERSION }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add versions.env
+          git commit -m "Bump Kitsu and Zou versions (${LATEST_KITSU} and ${LATEST_ZOU})"
+          git tag "${LATEST_KITSU}-${LATEST_ZOU}-01"
+          git push origin master --tags
