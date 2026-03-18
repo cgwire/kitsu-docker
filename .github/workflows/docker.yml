@@ -9,8 +9,13 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  versions:
     runs-on: ubuntu-latest
+    outputs:
+      kitsu_version: ${{ steps.versions.outputs.KITSU_VERSION }}
+      zou_version: ${{ steps.versions.outputs.ZOU_VERSION }}
+      index_version: ${{ steps.versions.outputs.INDEX_VERSION }}
+      image_tag: ${{ steps.versions.outputs.IMAGE_TAG }}
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -18,12 +23,10 @@ jobs:
       - name: Load and validate versions
         id: versions
         run: |
-          # Source versions from the single source of truth
           set -a
           source versions.env
           set +a
 
-          # Validate version formats
           for v in "$ZOU_VERSION" "$KITSU_VERSION"; do
             if ! echo "$v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
               echo "::error::Invalid version format: $v"
@@ -35,12 +38,25 @@ jobs:
             exit 1
           fi
 
+          IMAGE_TAG="${KITSU_VERSION}-${ZOU_VERSION}-${INDEX_VERSION}"
           echo "ZOU_VERSION=${ZOU_VERSION}" >> "$GITHUB_OUTPUT"
           echo "KITSU_VERSION=${KITSU_VERSION}" >> "$GITHUB_OUTPUT"
           echo "INDEX_VERSION=${INDEX_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+  build:
+    needs: versions
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -53,101 +69,103 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build and push multi-platform image with versioned tag
-      - name: Build and push Docker image
+      - name: Build and push single-platform image
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           push: true
           build-args: |
-            KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}
-            ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}
-          tags: cgwire/cgwire:${{ steps.versions.outputs.KITSU_VERSION }}-${{ steps.versions.outputs.ZOU_VERSION }}-${{ steps.versions.outputs.INDEX_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            KITSU_VERSION=${{ needs.versions.outputs.kitsu_version }}
+            ZOU_VERSION=${{ needs.versions.outputs.zou_version }}
+          tags: cgwire/cgwire:${{ needs.versions.outputs.image_tag }}
+          cache-from: type=gha,scope=${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ matrix.platform }},mode=max
 
-      # Test amd64
-      - name: Load amd64 image for testing
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+  merge:
+    needs: [versions, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          load: true
-          build-args: |
-            KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}
-            ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}
-          tags: cgwire/cgwire:test-amd64
-          cache-from: type=gha
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Test amd64 image
+      - name: Create multi-platform manifest
         env:
-          KITSU_VERSION: ${{ steps.versions.outputs.KITSU_VERSION }}
-          ZOU_VERSION: ${{ steps.versions.outputs.ZOU_VERSION }}
-        run: |
-          CONTAINER_NAME=cgwire-amd64
-
-          docker container run --platform=linux/amd64 -d --init -p 8001:80 --rm --name "${CONTAINER_NAME}" cgwire/cgwire:test-amd64
-
-          # Wait for the container to be ready
-          sleep 15
-
-          docker container run --link "${CONTAINER_NAME}" \
-            -e "KITSU_URL=http://${CONTAINER_NAME}:80" \
-            -e "KITSU_VERSION=${KITSU_VERSION}" \
-            -e "ZOU_VERSION=${ZOU_VERSION}" \
-            -e TIMEOUT=1 \
-            -e WAIT=1 \
-            cgwire/kitsu-checker:latest
-
-          docker kill "${CONTAINER_NAME}"
-
-      # Test arm64
-      - name: Load arm64 image for testing
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/arm64
-          load: true
-          build-args: |
-            KITSU_VERSION=${{ steps.versions.outputs.KITSU_VERSION }}
-            ZOU_VERSION=${{ steps.versions.outputs.ZOU_VERSION }}
-          tags: cgwire/cgwire:test-arm64
-          cache-from: type=gha
-
-      - name: Test arm64 image
-        env:
-          KITSU_VERSION: ${{ steps.versions.outputs.KITSU_VERSION }}
-          ZOU_VERSION: ${{ steps.versions.outputs.ZOU_VERSION }}
-        run: |
-          CONTAINER_NAME=cgwire-arm64
-
-          docker container run --platform=linux/arm64 -d --init -p 8002:80 --rm --name "${CONTAINER_NAME}" cgwire/cgwire:test-arm64
-
-          # arm64 via QEMU is slower
-          sleep 30
-
-          docker container run --link "${CONTAINER_NAME}" \
-            -e "KITSU_URL=http://${CONTAINER_NAME}:80" \
-            -e "KITSU_VERSION=${KITSU_VERSION}" \
-            -e "ZOU_VERSION=${ZOU_VERSION}" \
-            -e TIMEOUT=1 \
-            -e WAIT=1 \
-            cgwire/kitsu-checker:latest
-
-          docker kill "${CONTAINER_NAME}"
-
-      # Add alias tags (latest + kitsu version) like script 04
-      - name: Create alias tags
-        env:
-          KITSU_VERSION: ${{ steps.versions.outputs.KITSU_VERSION }}
-          ZOU_VERSION: ${{ steps.versions.outputs.ZOU_VERSION }}
-          INDEX_VERSION: ${{ steps.versions.outputs.INDEX_VERSION }}
+          IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
         run: |
           docker buildx imagetools create \
-            "cgwire/cgwire:${KITSU_VERSION}-${ZOU_VERSION}-${INDEX_VERSION}" \
+            --tag "cgwire/cgwire:${IMAGE_TAG}" \
+            "cgwire/cgwire:${IMAGE_TAG}"
+
+  test:
+    needs: [versions, merge]
+    strategy:
+      matrix:
+        include:
+          - platform: amd64
+            runner: ubuntu-latest
+            sleep: 15
+          - platform: arm64
+            runner: ubuntu-24.04-arm
+            sleep: 10
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull and test ${{ matrix.platform }} image
+        env:
+          KITSU_VERSION: ${{ needs.versions.outputs.kitsu_version }}
+          ZOU_VERSION: ${{ needs.versions.outputs.zou_version }}
+          IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
+        run: |
+          CONTAINER_NAME=cgwire-${{ matrix.platform }}
+
+          docker pull "cgwire/cgwire:${IMAGE_TAG}"
+
+          docker container run -d --init -p 8080:80 --rm --name "${CONTAINER_NAME}" "cgwire/cgwire:${IMAGE_TAG}"
+
+          sleep ${{ matrix.sleep }}
+
+          docker container run --link "${CONTAINER_NAME}" \
+            -e "KITSU_URL=http://${CONTAINER_NAME}:80" \
+            -e "KITSU_VERSION=${KITSU_VERSION}" \
+            -e "ZOU_VERSION=${ZOU_VERSION}" \
+            -e TIMEOUT=1 \
+            -e WAIT=1 \
+            cgwire/kitsu-checker:latest
+
+          docker kill "${CONTAINER_NAME}"
+
+  tag:
+    needs: [versions, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create alias tags
+        env:
+          KITSU_VERSION: ${{ needs.versions.outputs.kitsu_version }}
+          IMAGE_TAG: ${{ needs.versions.outputs.image_tag }}
+        run: |
+          docker buildx imagetools create \
+            "cgwire/cgwire:${IMAGE_TAG}" \
             --tag "cgwire/cgwire:${KITSU_VERSION}" \
             --tag "cgwire/cgwire:latest"
