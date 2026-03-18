@@ -19,6 +19,7 @@ jobs:
       zou_version: ${{ steps.versions.outputs.ZOU_VERSION }}
       index_version: ${{ steps.versions.outputs.INDEX_VERSION }}
       image_tag: ${{ steps.versions.outputs.IMAGE_TAG }}
+      exists: ${{ steps.check.outputs.exists }}
     steps:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -47,7 +48,21 @@ jobs:
           echo "INDEX_VERSION=${INDEX_VERSION}" >> "$GITHUB_OUTPUT"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
 
+      - name: Check if image already exists on Docker Hub
+        id: check
+        env:
+          IMAGE_TAG: ${{ steps.versions.outputs.IMAGE_TAG }}
+        run: |
+          if curl -sf "https://hub.docker.com/v2/repositories/cgwire/cgwire/tags/${IMAGE_TAG}" > /dev/null 2>&1; then
+            echo "::notice::Image cgwire/cgwire:${IMAGE_TAG} already exists on Docker Hub, skipping build."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image cgwire/cgwire:${IMAGE_TAG} not found, proceeding with build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    if: needs.versions.outputs.exists == 'false'
     needs: versions
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -101,6 +116,7 @@ jobs:
           retention-days: 1
 
   merge:
+    if: needs.versions.outputs.exists == 'false'
     needs: [versions, build]
     runs-on: ubuntu-latest
     steps:
@@ -136,6 +152,7 @@ jobs:
           docker buildx imagetools inspect "${{ env.IMAGE }}:${IMAGE_TAG}"
 
   test:
+    if: needs.versions.outputs.exists == 'false'
     needs: [versions, merge]
     strategy:
       matrix:
@@ -179,6 +196,7 @@ jobs:
           docker kill "${CONTAINER_NAME}"
 
   tag:
+    if: needs.versions.outputs.exists == 'false'
     needs: [versions, test]
     runs-on: ubuntu-latest
     steps:
