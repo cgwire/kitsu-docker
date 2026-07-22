@@ -19,12 +19,12 @@ versions:
     @echo "INDEX_VERSION={{ INDEX_VERSION }}"
     @echo "Tag: {{ tag }}"
 
-# Fetch latest versions from GitHub and update versions.env
+# Fetch latest published versions and update versions.env
 update-versions:
     #!/usr/bin/env bash
     set -euo pipefail
-    KITSU_VERSION=$(curl -s https://api.github.com/repos/cgwire/kitsu/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-    ZOU_VERSION=$(curl -s https://api.github.com/repos/cgwire/zou/tags | jq -r '.[0].name' | sed 's/^v//')
+    KITSU_VERSION=$(curl -fsS https://api.github.com/repos/cgwire/kitsu/releases/latest | jq -er '.tag_name' | sed 's/^v//')
+    ZOU_VERSION=$(curl -fsS https://pypi.org/pypi/zou/json | jq -er '.info.version')
     echo "Latest Kitsu: ${KITSU_VERSION}"
     echo "Latest Zou:   ${ZOU_VERSION}"
     sed -i'' -e "s/^KITSU_VERSION=.*/KITSU_VERSION=${KITSU_VERSION}/" versions.env

@@ -20,6 +20,9 @@ docker build --build-arg KITSU_VERSION=1.0.17 --build-arg ZOU_VERSION=1.0.18 -t 
 docker run --init -ti --rm -p 80:80 -p 1080:1080 --name cgwire cgwire/cgwire
 ```
 
+The container generates a temporary `SECRET_KEY` at startup. Pass
+`-e SECRET_KEY=<your-secret>` to keep sessions valid across container restarts.
+
 In order to enable data persistence, use a named volume for the database and thumbnails:
 
 ```bash
