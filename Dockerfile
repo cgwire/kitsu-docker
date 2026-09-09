@@ -2,7 +2,7 @@ FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=17
-ENV DB_USERNAME=root DB_HOST=
+ENV DB_USERNAME=root DB_HOST= PLUGIN_FOLDER=/opt/zou/plugins
 # Versions are defined in versions.env
 ARG ZOU_VERSION
 ARG KITSU_VERSION
