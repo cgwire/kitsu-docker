@@ -2,7 +2,7 @@ FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PG_VERSION=12
-ENV DB_USERNAME=root DB_HOST=
+ENV DB_USERNAME=root DB_HOST= PLUGIN_FOLDER=/opt/zou/plugins
 # https://github.com/cgwire/zou/tags
 ARG ZOU_VERSION=0.19.2
 # https://github.com/cgwire/kitsu/tags
