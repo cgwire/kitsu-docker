@@ -59,6 +59,52 @@ After updating the image, you have to update the database schema. For that run:
 docker exec -ti cgwire sh -c "/opt/zou/env/bin/zou upgrade-db"
 ```
 
+When the image switches to a new PostgreSQL major version (e.g. 14 to 17 with
+the move to Debian trixie), an existing `/var/lib/postgresql` volume can't be
+reused as is. Either start from a fresh volume or move your data with a manual
+dump and restore, as described below.
+
+### Backup and restore the database
+
+> [!WARNING]
+> This image is meant for demos and testing only. Do not use it in production.
+> We decline all responsibility for any data loss.
+>
+> To host Kitsu properly, follow the [deployment documentation](https://dev.kitsu.cloud/)
+> or use the [hosted offer by CGWire](https://www.cg-wire.com/pricing).
+
+The Zou database is named `zoudb` and is owned by the `root` PostgreSQL role.
+
+Dump it from the running container (custom format, compressed):
+
+```bash
+docker exec cgwire pg_dump -Fc zoudb > zoudb.dump
+```
+
+Save the previews too, they are not stored in the database:
+
+```bash
+docker cp cgwire:/opt/zou/previews ./previews
+```
+
+Restore into a container started from the new image (with a fresh volume).
+Stop the Zou processes first so nothing holds a connection to the database:
+
+```bash
+docker exec cgwire supervisorctl -c /etc/supervisord.conf stop zou-processes:*
+docker exec cgwire dropdb --force zoudb
+docker exec -u postgres cgwire createdb -T template0 -E UTF8 --owner root zoudb
+docker exec -i cgwire pg_restore --no-owner -d zoudb < zoudb.dump
+docker exec cgwire /opt/zou/env/bin/zou upgrade-db
+docker exec cgwire supervisorctl -c /etc/supervisord.conf start zou-processes:*
+```
+
+Then copy the previews back:
+
+```bash
+docker cp ./previews/. cgwire:/opt/zou/previews
+```
+
 ### Docker Compose
 
 `docker-compose.yml`

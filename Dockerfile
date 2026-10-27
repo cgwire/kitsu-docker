@@ -1,7 +1,7 @@
-FROM ubuntu:jammy
+FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PG_VERSION=14
+ENV PG_VERSION=17
 ENV DB_USERNAME=root DB_HOST=
 # Versions are defined in versions.env
 ARG ZOU_VERSION
@@ -28,7 +28,6 @@ RUN mkdir -p /opt/zou/zou /var/log/zou /opt/zou/previews && \
     libjpeg-dev \
     libpq-dev \
     redis-server \
-    software-properties-common \
     supervisor \
     xmlsec1 \
     wget && \
@@ -58,7 +57,8 @@ RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf && \
     python3 -m venv /opt/zou/env && \
     /opt/zou/env/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
     /opt/zou/env/bin/pip install --no-cache-dir zou==${ZOU_VERSION} && \
-    pip install --no-cache-dir sendria && \
+    python3 -m venv /opt/sendria && \
+    /opt/sendria/bin/pip install --no-cache-dir sendria && \
     rm /etc/nginx/sites-enabled/default
 
 WORKDIR /opt/zou
